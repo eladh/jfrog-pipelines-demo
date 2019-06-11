@@ -265,8 +265,6 @@ pipelines:
         configuration:
           inputResources:
             - name: releaseBundle_demo
-          integrations:
-            - name: art
           outputResources:
             - name: signedBundle_demo
 
