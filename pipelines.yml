@@ -239,8 +239,8 @@ pipelines:
       - name: bundle
         type: CreateReleaseBundle
         configuration:
-          releaseBundle_demoName: demo
-          releaseBundle_demoVersion: v1.0.$run_number
+          releaseBundleName: demo
+          releaseBundleVersion: v1.0.$run_number
           dryRun: false
           sign: false
           description: "some random test description"
