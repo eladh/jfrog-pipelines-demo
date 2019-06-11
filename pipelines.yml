@@ -244,6 +244,8 @@ pipelines:
           dryRun: false
           sign: false
           description: "some random test description"
+          integrations:
+            - name: art
           inputResources:
             - name: svc_promoted_build_info_demo
               trigger: false
@@ -263,6 +265,8 @@ pipelines:
         configuration:
           inputResources:
             - name: releaseBundle_demo
+          integrations:
+            - name: art
           outputResources:
             - name: signedBundle_demo
 
@@ -273,6 +277,8 @@ pipelines:
           inputResources:
             - name: signedBundle_demo
             - name: distributionRules_demo
+          integrations:
+            - name: art
 
       - name: deploy
         type: Bash
