@@ -1,0 +1,301 @@
+resources:
+  - name: go_gitRepo
+    type: GitRepo
+    configuration:
+      path: avinci/swampup-go-service
+      gitProvider: avinci_pipelines
+
+  - name: svc_build_info
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: art
+      buildName: svc_build
+      buildNumber: 1
+
+  - name: svc_promoted_build_info
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: art
+      buildName: svc_build
+      buildNumber: 1
+
+  - name: backend_gitRepo
+    type: GitRepo
+    configuration:
+      path: avinci/swampup-java-backend-service
+      gitProvider: avinci_pipelines
+
+  - name: app_build_info
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: art
+      buildName: backend_build
+      buildNumber: 1
+
+  - name: app_promoted_build_info
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: art
+      buildName: backend_build
+      buildNumber: 1
+
+  - name: frontend_gitRepo
+    type: GitRepo
+    configuration:
+      path: avinci/swampup-vue-frontend
+      gitProvider: avinci_pipelines
+
+  - name: releaseBundle
+    type: ReleaseBundle
+    configuration:
+      sourceArtifactory: art
+      name: demo
+      version: v1.0.0
+
+  - name: signedBundle
+    type: ReleaseBundle
+    configuration:
+      sourceArtifactory: art
+      name: demo
+      version: v1.0.0
+
+  - name: distributionRules
+    type: DistributionRule
+    configuration:
+      sourceArtifactory: art
+      serviceName: "*"
+      siteName: "*"
+      cityName: "*"
+      countryCodes:
+        - "*"
+
+  - name: deploy_vm
+    type: VmCluster
+    configuration:
+      sshKey: deploy_ssh
+      targets:
+        - 35.236.12.2
+
+pipelines:
+  - name: demo_service
+    steps:
+      - name: bld_svc
+        type: DockerBuild
+        configuration:
+          dockerFileLocation: .
+          dockerFileName: Dockerfile
+          dockerImageName: 34.66.110.173:8081/docker-local/gosvc
+          dockerImageTag: $run_number
+          inputResources:
+            - name: go_gitRepo
+          integrations:
+            - name: art
+
+      - name: push_svc
+        type: PushArtifactoryPackage
+        configuration:
+          targetRepo: docker-local
+          integrations:
+            - name: art
+          inputSteps:
+            - name: bld_svc
+
+      - name: publish_svc_build
+        type: PublishBuildInfo
+        configuration:
+          integrations:
+            - name: art
+          inputSteps:
+            - name: push_svc
+          outputResources:
+            - name: svc_build_info
+
+      - name: promote_svc_build
+        type: PromoteBuild
+        configuration:
+          targetRepo: demo
+          integrations:
+            - name: art
+          inputResources:
+            - name: svc_build_info
+          outputResources:
+            - name: svc_promoted_build_info
+
+  - name: demo_app
+    steps:
+      - name: bld_backend
+        type: MvnBuild
+        configuration:
+          sourceLocation: .
+          mvnCommand: clean install -ntp
+          configFileLocation: .
+          configFileName: mvn-art-config
+          inputResources:
+            - name: backend_gitRepo
+          integrations:
+            - name: art
+        execution:
+          onStart:
+            - apt-get update
+            - apt install default-jdk
+            - pushd /tmp
+            - wget http://mirrors.estointernet.in/apache/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.tar.gz
+            - tar xzvf apache-maven-3.6.1-bin.tar.gz
+            - export PATH=$PATH:/tmp/apache-maven-3.6.1/bin
+            - export M2_HOME=/tmp/apache-maven-3.6.1/
+            - popd
+            - javac -version
+            - mvn --version
+
+      - name: bld_frontend
+        type: NpmBuild
+        configuration:
+          npmArgs: --no-progress --no-audit
+          sourceLocation: .
+          repositoryName: npm-dev-virtual
+          inputResources:
+            - name: frontend_gitRepo
+          integrations:
+            - name: art
+
+      - name: pack_frontend
+        type: Bash
+        configuration:
+          inputSteps:
+            - name: bld_frontend
+          integrations:
+            - name: art
+        execution:
+          onStart:
+            - export tempStateLocation="$step_tmp_dir/npmSourceState"
+            - restore_run_state npmBuildInputGitRepo $tempStateLocation
+            - pushd $tempStateLocation
+            - npm run build
+            - save_run_state $tempStateLocation/. npmBuildInputGitRepo
+
+      - name: publish_frontend
+        type: NpmPublish
+        configuration:
+          repositoryName: npm-libs-local
+          inputSteps:
+            - name: pack_frontend
+          integrations:
+            - name: art
+        execution:
+          onStart:
+            - export inputNpmBuildStepName="bld_frontend"
+
+      - name: build_app
+        type: Bash
+        configuration:
+          environmentVariables:
+            dockerImageName: 34.66.110.173:8081/docker-local/app
+            dockerImageTag: ${run_number}
+          inputResources:
+            - name: backend_gitRepo
+          inputSteps:
+            - name: bld_backend
+            - name: publish_frontend
+          integrations:
+            - name: art
+        execution:
+          onStart:
+            - rm -rf $run_dir/workspace/jfrog
+            - retry_command jfrog rt config --url $int_art_url --user $int_art_user --apikey $int_art_apikey --interactive=false
+            - pushd $res_backend_gitRepo_resourcePath
+            - echo $int_art_url
+            - echo $run_Number
+            - add_run_variable buildStepName=${step_name}
+            - add_run_variable ${step_name}_buildNumber=${run_number}
+            - add_run_variable ${step_name}_buildName=${pipeline_name}
+            - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_art_url} .
+            - jfrog rt bce $pipeline_name $run_number
+            - jfrog rt docker-push $dockerImageName:$dockerImageTag docker-local --build-name=$pipeline_name --build-number=$run_number
+            - save_run_state /tmp/jfrog/. jfrog
+
+      - name: publish_app_build
+        type: PublishBuildInfo
+        configuration:
+          integrations:
+            - name: art
+          inputSteps:
+            - name: build_app
+          outputResources:
+            - name: app_build_info
+
+      - name: promote_app_build
+        type: PromoteBuild
+        configuration:
+          targetRepo: demo
+          integrations:
+            - name: art
+          inputResources:
+            - name: app_build_info
+          outputResources:
+            - name: app_promoted_build_info
+
+  - name: demo_release
+    steps:
+      - name: bundle
+        type: CreateReleaseBundle
+        configuration:
+          releaseBundleName: demo
+          releaseBundleVersion: v1.0.$run_number
+          dryRun: false
+          sign: false
+          description: "some random test description"
+          integrations:
+            - name: kermit_art
+          inputResources:
+            - name: svc_promoted_build_info
+              trigger: false
+            - name: app_promoted_build_info
+              trigger: false
+          outputResources:
+            - name: releaseBundle
+          releaseNotes:
+            syntax: markdown
+            content: |
+              ## Heading
+                * Bullet
+                * Points
+
+      - name: sign
+        type: SignReleaseBundle
+        configuration:
+          inputResources:
+            - name: releaseBundle
+          integrations:
+            - name: kermit_art
+          outputResources:
+            - name: signedBundle
+
+      - name: distribute
+        type: DistributeReleaseBundle
+        configuration:
+          dryRun: false
+          inputResources:
+            - name: signedBundle
+            - name: distributionRules
+          integrations:
+            - name: kermit_art
+
+      - name: deploy
+        type: Bash
+        configuration:
+          environmentVariables:
+            docker_repository: demo
+            artifactory_address: 34.66.110.173:8082
+          integrations:
+            - name: edge_art
+          inputResources:
+            - name: deploy_vm
+            - name: svc_promoted_build_info
+              trigger: false
+            - name: app_promoted_build_info
+              trigger: false
+          inputSteps:
+            - name: distribute
+        execution:
+          onExecute:
+            - ssh -i ~/.ssh/deploy_vm avic@${res_deploy_vm_targets_0} sudo /home/avic/deploy-to-prod-test.sh $artifactory_address $docker_repository $int_edge_art_apikey $res_app_promoted_build_info_buildNumber $res_svc_promoted_build_info_buildNumber
