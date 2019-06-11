@@ -46,14 +46,14 @@ resources:
       gitProvider: eladh_github
 
   - name: releaseBundle_demo
-    type: releaseBundle
+    type: ReleaseBundle
     configuration:
       sourceArtifactory: art
       name: demo
       version: v1.0.0
 
   - name: signedBundle_demo
-    type: releaseBundle
+    type: ReleaseBundle
     configuration:
       sourceArtifactory: art
       name: demo
@@ -237,7 +237,7 @@ pipelines:
   - name: demo_release
     steps:
       - name: bundle
-        type: CreatereleaseBundle_demo
+        type: CreateReleaseBundle
         configuration:
           releaseBundle_demoName: demo
           releaseBundle_demoVersion: v1.0.$run_number
@@ -260,8 +260,8 @@ pipelines:
                 * Bullet
                 * Points
 
-      - name: sign
-        type: SignreleaseBundle_demo
+      - name: sign_demo
+        type: SignReleaseBundle
         configuration:
           inputResources:
             - name: releaseBundle_demo
@@ -271,7 +271,7 @@ pipelines:
             - name: signedBundle_demo
 
       - name: distribute
-        type: DistributereleaseBundle_demo
+        type: DistributeReleaseBundle
         configuration:
           dryRun: false
           inputResources:
