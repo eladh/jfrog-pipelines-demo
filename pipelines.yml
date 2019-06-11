@@ -1,65 +1,65 @@
 resources:
-  - name: go_gitRepo
+  - name: go_gitRepo_demo
     type: GitRepo
     configuration:
       path: eladh/swampup-go-service
       gitProvider: eladh_github
 
-  - name: svc_build_info
+  - name: svc_build_info_demo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: svc_build
       buildNumber: 1
 
-  - name: svc_promoted_build_info
+  - name: svc_promoted_build_info_demo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: svc_build
       buildNumber: 1
 
-  - name: backend_gitRepo
+  - name: backend_gitRepo_demo
     type: GitRepo
     configuration:
       path: eladh/swampup-java-backend-service
       gitProvider: eladh_github
 
-  - name: app_build_info
+  - name: app_build_info_demo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: backend_build
       buildNumber: 1
 
-  - name: app_promoted_build_info
+  - name: app_promoted_build_info_demo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: backend_build
       buildNumber: 1
 
-  - name: frontend_gitRepo
+  - name: frontend_gitRepo_demo
     type: GitRepo
     configuration:
       path: eladh/swampup-vue-frontend
       gitProvider: eladh_github
 
-  - name: releaseBundle
-    type: ReleaseBundle
+  - name: releaseBundle_demo
+    type: releaseBundle
     configuration:
       sourceArtifactory: art
       name: demo
       version: v1.0.0
 
-  - name: signedBundle
-    type: ReleaseBundle
+  - name: signedBundle_demo
+    type: releaseBundle
     configuration:
       sourceArtifactory: art
       name: demo
       version: v1.0.0
 
-  - name: distributionRules
+  - name: distributionRules_demo
     type: DistributionRule
     configuration:
       sourceArtifactory: art
@@ -69,7 +69,7 @@ resources:
       countryCodes:
         - "*"
 
-  - name: deploy_vm
+  - name: deploy_vm_demo
     type: VmCluster
     configuration:
       sshKey: deploy_ssh
@@ -77,9 +77,9 @@ resources:
         - 35.236.12.2
 
 pipelines:
-  - name: demo_service
+  - name: demo_service_demo
     steps:
-      - name: bld_svc
+      - name: bld_svc_demo
         type: DockerBuild
         configuration:
           dockerFileLocation: .
@@ -87,43 +87,43 @@ pipelines:
           dockerImageName: 34.66.110.173:8081/docker-local/gosvc
           dockerImageTag: $run_number
           inputResources:
-            - name: go_gitRepo
+            - name: go_gitRepo_demo
           integrations:
             - name: art
 
-      - name: push_svc
+      - name: push_svc_demo
         type: PushArtifactoryPackage
         configuration:
           targetRepo: docker-local
           integrations:
             - name: art
           inputSteps:
-            - name: bld_svc
+            - name: bld_svc_demo
 
-      - name: publish_svc_build
+      - name: publish_svc_build_demo
         type: PublishBuildInfo
         configuration:
           integrations:
             - name: art
           inputSteps:
-            - name: push_svc
+            - name: push_svc_demo
           outputResources:
-            - name: svc_build_info
+            - name: svc_build_info_demo
 
-      - name: promote_svc_build
+      - name: promote_svc_build_demo
         type: PromoteBuild
         configuration:
           targetRepo: demo
           integrations:
             - name: art
           inputResources:
-            - name: svc_build_info
+            - name: svc_build_info_demo
           outputResources:
-            - name: svc_promoted_build_info
+            - name: svc_promoted_build_info_demo
 
   - name: demo_app
     steps:
-      - name: bld_backend
+      - name: bld_backend_demo
         type: MvnBuild
         configuration:
           sourceLocation: .
@@ -131,7 +131,7 @@ pipelines:
           configFileLocation: .
           configFileName: mvn-art-config
           inputResources:
-            - name: backend_gitRepo
+            - name: backend_gitRepo_demo
           integrations:
             - name: art
         execution:
@@ -154,7 +154,7 @@ pipelines:
           sourceLocation: .
           repositoryName: npm-dev-virtual
           inputResources:
-            - name: frontend_gitRepo
+            - name: frontend_gitRepo_demo
           integrations:
             - name: art
 
@@ -173,7 +173,7 @@ pipelines:
             - npm run build
             - save_run_state $tempStateLocation/. npmBuildInputGitRepo
 
-      - name: publish_frontend
+      - name: publish_frontend_demo
         type: NpmPublish
         configuration:
           repositoryName: npm-libs-local
@@ -185,24 +185,24 @@ pipelines:
           onStart:
             - export inputNpmBuildStepName="bld_frontend"
 
-      - name: build_app
+      - name: build_app_demo
         type: Bash
         configuration:
           environmentVariables:
             dockerImageName: 34.66.110.173:8081/docker-local/app
             dockerImageTag: ${run_number}
           inputResources:
-            - name: backend_gitRepo
+            - name: backend_gitRepo_demo
           inputSteps:
-            - name: bld_backend
-            - name: publish_frontend
+            - name: bld_backend_demo
+            - name: publish_frontend_demo
           integrations:
             - name: art
         execution:
           onStart:
             - rm -rf $run_dir/workspace/jfrog
             - retry_command jfrog rt config --url $int_art_url --user $int_art_user --apikey $int_art_apikey --interactive=false
-            - pushd $res_backend_gitRepo_resourcePath
+            - pushd $res_backend_gitRepo_demo_resourcePath
             - echo $int_art_url
             - echo $run_Number
             - add_run_variable buildStepName=${step_name}
@@ -213,15 +213,15 @@ pipelines:
             - jfrog rt docker-push $dockerImageName:$dockerImageTag docker-local --build-name=$pipeline_name --build-number=$run_number
             - save_run_state /tmp/jfrog/. jfrog
 
-      - name: publish_app_build
+      - name: publish_app_build_demo
         type: PublishBuildInfo
         configuration:
           integrations:
             - name: art
           inputSteps:
-            - name: build_app
+            - name: build_app_demo
           outputResources:
-            - name: app_build_info
+            - name: app_build_info_demo
 
       - name: promote_app_build
         type: PromoteBuild
@@ -230,29 +230,29 @@ pipelines:
           integrations:
             - name: art
           inputResources:
-            - name: app_build_info
+            - name: app_build_info_demo
           outputResources:
-            - name: app_promoted_build_info
+            - name: app_promoted_build_info_demo
 
   - name: demo_release
     steps:
       - name: bundle
-        type: CreateReleaseBundle
+        type: CreatereleaseBundle_demo
         configuration:
-          releaseBundleName: demo
-          releaseBundleVersion: v1.0.$run_number
+          releaseBundle_demoName: demo
+          releaseBundle_demoVersion: v1.0.$run_number
           dryRun: false
           sign: false
           description: "some random test description"
           integrations:
             - name: kermit_art
           inputResources:
-            - name: svc_promoted_build_info
+            - name: svc_promoted_build_info_demo
               trigger: false
-            - name: app_promoted_build_info
+            - name: app_promoted_build_info_demo
               trigger: false
           outputResources:
-            - name: releaseBundle
+            - name: releaseBundle_demo
           releaseNotes:
             syntax: markdown
             content: |
@@ -261,22 +261,22 @@ pipelines:
                 * Points
 
       - name: sign
-        type: SignReleaseBundle
+        type: SignreleaseBundle_demo
         configuration:
           inputResources:
-            - name: releaseBundle
+            - name: releaseBundle_demo
           integrations:
             - name: kermit_art
           outputResources:
-            - name: signedBundle
+            - name: signedBundle_demo
 
       - name: distribute
-        type: DistributeReleaseBundle
+        type: DistributereleaseBundle_demo
         configuration:
           dryRun: false
           inputResources:
-            - name: signedBundle
-            - name: distributionRules
+            - name: signedBundle_demo
+            - name: distributionRules_demo
           integrations:
             - name: kermit_art
 
@@ -289,13 +289,13 @@ pipelines:
           integrations:
             - name: edge_art
           inputResources:
-            - name: deploy_vm
-            - name: svc_promoted_build_info
+            - name: deploy_vm_demo
+            - name: svc_promoted_build_info_demo
               trigger: false
-            - name: app_promoted_build_info
+            - name: app_promoted_build_info_demo
               trigger: false
           inputSteps:
             - name: distribute
         execution:
           onExecute:
-            - ssh -i ~/.ssh/deploy_vm avic@${res_deploy_vm_targets_0} sudo /home/avic/deploy-to-prod-test.sh $artifactory_address $docker_repository $int_edge_art_apikey $res_app_promoted_build_info_buildNumber $res_svc_promoted_build_info_buildNumber
+            - ssh -i ~/.ssh/deploy_vm avic@${res_deploy_vm_targets_0} sudo /home/avic/deploy-to-prod-test.sh $artifactory_address $docker_repository $int_edge_art_apikey $res_app_promoted_build_info_demo_buildNumber $res_svc_promoted_build_info_demo_buildNumber
