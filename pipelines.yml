@@ -49,15 +49,15 @@ resources:
     type: ReleaseBundle
     configuration:
       sourceArtifactory: art
-      name: demo
-      version: v1.0.0
+      name: demo-app
+      version: v2.0.0
 
   - name: signedBundle_demo
     type: ReleaseBundle
     configuration:
       sourceArtifactory: art
-      name: demo
-      version: v1.0.0
+      name: demo-app
+      version: v2.0.0
 
   - name: distributionRules_demo
     type: DistributionRule
@@ -239,8 +239,8 @@ pipelines:
       - name: bundle
         type: CreateReleaseBundle
         configuration:
-          releaseBundleName: demo
-          releaseBundleVersion: v1.0.$run_number
+          releaseBundleName: demo-app
+          releaseBundleVersion: v2.0.$run_number
           dryRun: false
           sign: false
           description: "some random test description"
