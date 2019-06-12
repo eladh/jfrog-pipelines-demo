@@ -84,7 +84,7 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 34.66.110.173:8081/docker-local/gosvc
+          dockerImageName: artifactory-swampup.jfrogdev.co/docker-local/gosvc
           dockerImageTag: $run_number
           inputResources:
             - name: go_gitRepo_demo
