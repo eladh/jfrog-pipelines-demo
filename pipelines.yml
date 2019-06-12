@@ -126,6 +126,12 @@ pipelines:
       - name: bld_backend_demo
         type: MvnBuild
         configuration:
+          runtime:
+            type: image
+            image:
+              custom:
+                image: drydock/u18node
+                tag: master
           sourceLocation: .
           mvnCommand: clean install -ntp
           configFileLocation: .
