@@ -189,7 +189,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            dockerImageName: 34.66.110.173:8081/docker-local/app
+            dockerImageName: artifactory-swampup.jfrogdev.co/docker-local/app
             dockerImageTag: ${run_number}
           inputResources:
             - name: backend_gitRepo_demo
