@@ -259,12 +259,6 @@ pipelines:
               trigger: false
           outputResources:
             - name: releaseBundle_demo
-          releaseNotes:
-            syntax: markdown
-            content: |
-              ## Heading
-                * Bullet
-                * Points
 
       - name: sign_demo
         type: SignReleaseBundle
