@@ -130,7 +130,7 @@ pipelines:
             type: image
             image:
               custom:
-                image: drydock/u18node
+                name: drydock/u18node
                 tag: master
           sourceLocation: .
           mvnCommand: clean install -ntp
