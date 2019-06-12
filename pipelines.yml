@@ -84,7 +84,7 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: artifactory-swampup.jfrogdev.co/docker-local/gosvc
+          dockerImageName: docker-artifactory-swampup.jfrogdev.co/gosvc
           dockerImageTag: $run_number
           inputResources:
             - name: go_gitRepo_demo
@@ -189,7 +189,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            dockerImageName: 34.66.110.173:8081/docker-local/app
+            dockerImageName: docker-artifactory-swampup.jfrogdev.co/app
             dockerImageTag: ${run_number}
           inputResources:
             - name: backend_gitRepo_demo
@@ -294,6 +294,7 @@ pipelines:
               trigger: false
             - name: app_promoted_build_info_demo
               trigger: false
+          inputSteps:
           inputSteps:
             - name: distribute
         execution:
