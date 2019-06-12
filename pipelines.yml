@@ -263,6 +263,8 @@ pipelines:
       - name: sign_demo
         type: SignReleaseBundle
         configuration:
+          integrations:
+            - name: art
           inputResources:
             - name: releaseBundle_demo
           outputResources:
