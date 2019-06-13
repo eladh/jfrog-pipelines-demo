@@ -285,7 +285,7 @@ pipelines:
         configuration:
           environmentVariables:
             docker_repository: demo
-            artifactory_address: 34.66.110.173:8082
+            artifactory_address: artifactory-swampup.jfrogdev.co
           integrations:
             - name: edge_art
           inputResources:
