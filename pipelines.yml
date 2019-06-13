@@ -130,7 +130,7 @@ pipelines:
             type: image
             image:
               custom:
-                name: drydock/u18java:master
+                name: drydock/u18java
                 tag: master
           sourceLocation: .
           mvnCommand: clean install -ntp
