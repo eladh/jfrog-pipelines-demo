@@ -85,17 +85,10 @@ pipelines:
             - name: art
 
       - name: push_svc_demo
-        type: PushArtifactoryPackage
+        type: DockerPush
         configuration:
-          targetRepo: myteam1-docker-dev-us
-          integrations:
-            - name: art
-          inputSteps:
-            - name: bld_svc_demo
-
-      - name: publish_svc_build_demo
-        type: PublishBuildInfo
-        configuration:
+          targetRepository: myteam1-docker-dev-us
+          autoPublishBuildInfo: true
           integrations:
             - name: art
           inputSteps:
