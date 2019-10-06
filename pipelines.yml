@@ -223,10 +223,8 @@ pipelines:
           releaseBundleName: demo-app
           releaseBundleVersion: v2.0.$run_number
           dryRun: false
-          sign: false
+          sign: true
           description: "some random test description"
-          integrations:
-            - name: art
           inputResources:
             - name: svc_promoted_build_info_demo
               trigger: false
@@ -235,22 +233,11 @@ pipelines:
           outputResources:
             - name: releaseBundle_demo
 
-      - name: sign_demo
-        type: SignReleaseBundle
-        configuration:
-          integrations:
-            - name: art
-          inputResources:
-            - name: releaseBundle_demo
-          outputResources:
-            - name: signedBundle_demo
-
       - name: distribute
         type: DistributeReleaseBundle
         configuration:
           dryRun: false
           inputResources:
-            - name: signedBundle_demo
             - name: distributionRules_demo
           integrations:
             - name: art
