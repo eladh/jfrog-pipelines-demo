@@ -48,21 +48,21 @@ resources:
   - name: releaseBundle_demo
     type: ReleaseBundle
     configuration:
-      sourceArtifactory: art
+      sourceDistribution: dist
       name: demo-app
       version: v2.0.0
 
   - name: signedBundle_demo
     type: ReleaseBundle
     configuration:
-      sourceArtifactory: art
+      sourceDistribution: dist
       name: demo-app
       version: v2.0.0
 
   - name: distributionRules_demo
     type: DistributionRule
     configuration:
-      sourceArtifactory: art
+      sourceDistribution: dist
       serviceName: "*"
       siteName: "*"
       cityName: "*"
@@ -94,7 +94,7 @@ pipelines:
       - name: push_svc_demo
         type: PushArtifactoryPackage
         configuration:
-          targetRepository: myteam1-docker-dev-us
+          targetRepo: myteam1-docker-dev-us
           integrations:
             - name: art
           inputSteps:
