@@ -99,7 +99,7 @@ pipelines:
           integrations:
             - name: art
           inputSteps:
-            - name: push_svc_demo
+            - name: bld_svc_demo
           outputResources:
             - name: svc_build_info_demo
 
