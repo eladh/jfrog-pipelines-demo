@@ -238,6 +238,7 @@ pipelines:
         configuration:
           dryRun: false
           inputResources:
+            - name: releaseBundle_demo
             - name: distributionRules_demo
           integrations:
             - name: art
