@@ -84,7 +84,7 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: artifactory-swampup.jfrogdev.co/docker-local/gosvc
+          dockerImageName: artifactory-swampup.jfrogdev.co/myteam1-docker-dev-us/gosvc
           dockerImageTag: $run_number
           inputResources:
             - name: go_gitRepo_demo
@@ -94,7 +94,7 @@ pipelines:
       - name: push_svc_demo
         type: PushArtifactoryPackage
         configuration:
-          targetRepo: docker-local
+          targetRepository: myteam1-docker-dev-us
           integrations:
             - name: art
           inputSteps:
@@ -113,7 +113,7 @@ pipelines:
       - name: promote_svc_build_demo
         type: PromoteBuild
         configuration:
-          targetRepo: demo
+          targetRepository: myteam1-docker-prod-us
           integrations:
             - name: art
           inputResources:
@@ -147,7 +147,7 @@ pipelines:
         configuration:
           npmArgs: --no-progress --no-audit
           sourceLocation: .
-          repositoryName: npm-dev-virtual
+          repositoryName: team2-npm
           inputResources:
             - name: frontend_gitRepo_demo
           integrations:
@@ -171,7 +171,7 @@ pipelines:
       - name: publish_frontend_demo
         type: NpmPublish
         configuration:
-          repositoryName: npm-libs-local
+          repositoryName: team2-npm-dev-local
           inputSteps:
             - name: pack_frontend
           integrations:
@@ -221,7 +221,7 @@ pipelines:
       - name: promote_app_build
         type: PromoteBuild
         configuration:
-          targetRepo: demo
+          targetRepository: team1-docker-prod-us
           integrations:
             - name: art
           inputResources:
@@ -273,7 +273,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            docker_repository: demo
+            docker_repository: team1-docker-prod-us
             artifactory_address: 35.227.181.186
           integrations:
             - name: edge_art
