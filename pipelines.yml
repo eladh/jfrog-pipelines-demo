@@ -197,8 +197,6 @@ pipelines:
       - name: publish_app_build_demo
         type: PublishBuildInfo
         configuration:
-          integrations:
-            - name: art
           inputSteps:
             - name: build_app_demo
           outputResources:
