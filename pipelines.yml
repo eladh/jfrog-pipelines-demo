@@ -220,8 +220,8 @@ pipelines:
         type: CreateReleaseBundle
         configuration:
           releaseBundleName: demo-app
-          releaseBundleVersion: 2.0.$run_number
-          dryRun: true
+          releaseBundleVersion: 2.0.2
+          dryRun: false
           sign: true
           inputResources:
             - name: svc_promoted_build_info_demo
