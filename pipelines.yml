@@ -107,28 +107,28 @@ pipelines:
           outputResources:
             - name: svc_promoted_build_info_demo
 
-  - name: demo_app_pipeline
-    steps:
-      - name: bld_backend_demo
-        type: MvnBuild
-        configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: drydock/u18java
-                tag: master
-          sourceLocation: .
-          mvnCommand: clean install -ntp
-          configFileLocation: .
-          configFileName: mvn-art-config
-          inputResources:
-            - name: backend_gitRepo_demo
-          integrations:
-            - name: art
-    execution:
-      onFailure:
-        - jfrog rt config show
+      - name: demo_app_pipeline
+        steps:
+          - name: bld_backend_demo
+            type: MvnBuild
+            configuration:
+              runtime:
+                type: image
+                image:
+                  custom:
+                    name: drydock/u18java
+                    tag: master
+              sourceLocation: .
+              mvnCommand: clean install -ntp
+              configFileLocation: .
+              configFileName: mvn-art-config
+              inputResources:
+                - name: backend_gitRepo_demo
+              integrations:
+                - name: art
+        execution:
+          onFailure:
+            - jfrog rt config show
 
 
       - name: bld_frontend
