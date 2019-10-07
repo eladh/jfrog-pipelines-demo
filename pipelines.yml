@@ -87,7 +87,7 @@ pipelines:
       - name: push_svc_demo
         type: DockerPush
         configuration:
-          targetRepository: myteam1-docker-dev-us
+          targetRepository: team1-docker-dev-us
           autoPublishBuildInfo: true
           integrations:
             - name: art
@@ -99,7 +99,7 @@ pipelines:
       - name: promote_svc_build_demo
         type: PromoteBuild
         configuration:
-          targetRepository: myteam1-docker-prod-us
+          targetRepository: team1-docker-prod-us
           integrations:
             - name: art
           inputResources:
