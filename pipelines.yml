@@ -157,7 +157,7 @@ pipelines:
       - name: publish_frontend_demo
         type: NpmPublish
         configuration:
-          repositoryName: team2-npm-dev-local
+          repositoryName: team2-npm-dev-us
           inputSteps:
             - name: pack_frontend
           integrations:
@@ -170,7 +170,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            dockerImageName: artifactory-swampup.jfrogdev.co/docker-local/app
+            dockerImageName: artifactory-swampup.jfrogdev.co/team1-docker-dev-us/app
             dockerImageTag: ${run_number}
           inputResources:
             - name: backend_gitRepo_demo
@@ -191,7 +191,7 @@ pipelines:
             - add_run_variable ${step_name}_buildName=${pipeline_name}
             - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_art_url} .
             - jfrog rt bce $pipeline_name $run_number
-            - jfrog rt docker-push $dockerImageName:$dockerImageTag docker-local --build-name=$pipeline_name --build-number=$run_number
+            - jfrog rt docker-push $dockerImageName:$dockerImageTag team1-docker-dev-us --build-name=$pipeline_name --build-number=$run_number
             - save_run_state /tmp/jfrog/. jfrog
 
       - name: publish_app_build_demo
