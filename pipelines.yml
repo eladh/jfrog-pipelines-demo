@@ -126,9 +126,9 @@ pipelines:
             - name: backend_gitRepo_demo
           integrations:
             - name: art
-      execution:
-        onFailure:
-          - jfrog rt config show
+    execution:
+      onFailure:
+        - jfrog rt config show
 
 
       - name: bld_frontend
