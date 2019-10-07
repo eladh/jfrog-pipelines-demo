@@ -151,7 +151,6 @@ pipelines:
             - export tempStateLocation="$step_tmp_dir/npmSourceState"
             - restore_run_files npmBuildInputGitRepo $tempStateLocation
             - pushd $tempStateLocation
-            - cd demo/swampup-vue-frontend
             - npm run build
             - add_run_files $tempStateLocation/. npmBuildInputGitRepo
 
