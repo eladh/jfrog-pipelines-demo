@@ -193,7 +193,7 @@ pipelines:
             - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_art_url} --build-arg NPM_REPO_NAME=team2-npm-dev-us --build-arg MAVEN_REPO_NAME=team1-mvn-dev-us --build-arg REGISTRY_USERNAME=$int_art_user --build-arg REGISTRY_PASSWORD=$int_art_apikey .
             - jfrog rt bce $pipeline_name $run_number
             - jfrog rt docker-push $dockerImageName:$dockerImageTag team1-docker-dev-us --build-name=$pipeline_name --build-number=$run_number
-            - save_run_state /tmp/jfrog/. jfrog
+            - add_run_files /tmp/jfrog/. jfrog
 
       - name: publish_app_build_demo
         type: PublishBuildInfo
