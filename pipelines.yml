@@ -219,8 +219,6 @@ pipelines:
       - name: bundle
         type: CreateReleaseBundle
         configuration:
-          releaseBundleName: "demo-app"
-          releaseBundleVersion: "2.0.2"
           dryRun: false
           sign: true
           inputResources:
