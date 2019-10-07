@@ -222,13 +222,10 @@ pipelines:
           releaseBundleName: demo-app
           releaseBundleVersion: 2.0.$run_number
           dryRun: false
-          sign: true
-          description: "some random test description"
+          sign: false
           inputResources:
             - name: svc_promoted_build_info_demo
-              trigger: false
             - name: app_promoted_build_info_demo
-              trigger: false
           outputResources:
             - name: releaseBundle_demo
 
