@@ -77,7 +77,7 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: team1-docker-dev-us/gosvc
+          dockerImageName: 35.196.150.45:8081/team1-docker-dev-us/gosvc
           dockerImageTag: $run_number
           inputResources:
             - name: goServiceGitRepo
