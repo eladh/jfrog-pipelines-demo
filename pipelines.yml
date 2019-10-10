@@ -70,7 +70,7 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 35.196.150.45:8081/team1-docker-dev-us/gosvc
+          dockerImageName: 104.196.139.248/team1-docker-dev-us/gosvc
           dockerImageTag: $run_number
           inputResources:
             - name: goServiceGitRepo
@@ -166,7 +166,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            dockerImageName: 35.196.150.45:8081/team1-docker-dev-us/app
+            dockerImageName: 104.196.139.248/team1-docker-dev-us/app
             dockerImageTag: ${run_number}
           inputResources:
             - name: javaBackendGitRepo
