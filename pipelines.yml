@@ -63,7 +63,7 @@ resources:
         - "*"
 
 pipelines:
-  - name: go-service-pipeline
+  - name: go_service_pipeline
     steps:
       - name: go_service_docker_build
         type: DockerBuild
@@ -100,7 +100,7 @@ pipelines:
           outputResources:
             - name: goServicePromotedDockerBuildInfo
 
-  - name: npm-maven-service-pipeline
+  - name: npm_maven_service_pipeline
     steps:
       - name: backend_maven_build
         type: MvnBuild
@@ -207,7 +207,7 @@ pipelines:
           outputResources:
             - name: javaBackendPromotedDockerBuildInfo
 
-  - name: release-pipeline
+  - name: release_pipeline
     steps:
       - name: create_release_bundle
         type: CreateReleaseBundle
