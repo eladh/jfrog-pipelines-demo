@@ -219,8 +219,8 @@ pipelines:
       - name: bundle
         type: CreateReleaseBundle
         configuration:
-          releaseBundleName: "demo-app"
-          releaseBundleVersion: "2.0.2"
+          releaseBundleName: demo-app
+          releaseBundleVersion: 2.0.2
           dryRun: false
           sign: true
           inputResources:
@@ -228,6 +228,10 @@ pipelines:
             - name: app_promoted_build_info_demo
           outputResources:
             - name: releaseBundle_demo
+        execution:
+          onStart:
+            - echo $outputReleaseBundleResourceName
+            - printenv
 
       - name: distribute
         type: DistributeReleaseBundle
