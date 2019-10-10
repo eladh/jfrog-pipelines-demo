@@ -9,11 +9,15 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: svc_build
+      buildNumber: 1
 
   - name: goServicePromotedDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: svc_build
+      buildNumber: 1
 
   - name: javaBackendGitRepo
     type: GitRepo
@@ -25,6 +29,8 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: backend_build
+      buildNumber: 1
 
   - name: javaBackendPromotedDockerBuild
     type: BuildInfo
