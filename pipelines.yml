@@ -154,7 +154,6 @@ pipelines:
         type: NpmPublish
         configuration:
           repositoryName: team2-npm-dev-us
-          autoPublishBuildInfo: true
           inputSteps:
             - name: frontend_npm_pack
           integrations:
