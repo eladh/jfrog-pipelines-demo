@@ -65,7 +65,7 @@ resources:
 pipelines:
   - name: go-service-pipeline
     steps:
-      - name: go-service-docker-build
+      - name: go_service_docker_build
         type: DockerBuild
         configuration:
           dockerFileLocation: .
@@ -77,7 +77,7 @@ pipelines:
           integrations:
             - name: art
 
-      - name: go-service-docker-push
+      - name: go_service_docker_push
         type: DockerPush
         configuration:
           targetRepository: team1-docker-dev-us
@@ -85,11 +85,11 @@ pipelines:
           integrations:
             - name: art
           inputSteps:
-            - name: go-service-docker-build
+            - name: go_service_docker_build
           outputResources:
             - name: goServiceDockerBuildInfo
 
-      - name: promote-go-service-build
+      - name: go_service_promote_build
         type: PromoteBuild
         configuration:
           targetRepository: team1-docker-prod-us
@@ -102,7 +102,7 @@ pipelines:
 
   - name: npm-maven-service-pipeline
     steps:
-      - name: backend-maven-build
+      - name: backend_maven_build
         type: MvnBuild
         configuration:
           runtime:
@@ -124,7 +124,7 @@ pipelines:
             - jfrog rt config show
 
 
-      - name: frontend-npm-build
+      - name: frontend_npm_build
         type: NpmBuild
         configuration:
           npmArgs: --no-progress --no-audit
@@ -135,11 +135,11 @@ pipelines:
           integrations:
             - name: art
 
-      - name: frontend-npm-pack
+      - name: frontend_npm_pack
         type: Bash
         configuration:
           inputSteps:
-            - name: frontend-npm-build
+            - name: frontend_npm_build
           integrations:
             - name: art
         execution:
@@ -150,20 +150,20 @@ pipelines:
             - npm run build
             - add_run_files $tempStateLocation/. npmBuildInputGitRepo
 
-      - name: frontend-npm-publish
+      - name: frontend_npm_publish
         type: NpmPublish
         configuration:
           repositoryName: team2-npm-dev-us
           autoPublishBuildInfo: true
           inputSteps:
-            - name: frontend-npm-pack
+            - name: frontend_npm_pack
           integrations:
             - name: art
         execution:
           onStart:
-            - export inputNpmBuildStepName="frontend-npm-build"
+            - export inputNpmBuildStepName="frontend_npm_build"
 
-      - name: app-docker-build
+      - name: docker_build
         type: Bash
         configuration:
           environmentVariables:
@@ -172,8 +172,8 @@ pipelines:
           inputResources:
             - name: javaBackendGitRepo
           inputSteps:
-            - name: backend-maven-build
-            - name: frontend-npm-publish
+            - name: backend_maven_build
+            - name: frontend_npm_publish
           integrations:
             - name: art
         execution:
@@ -189,15 +189,15 @@ pipelines:
             - jfrog rt docker-push $dockerImageName:$dockerImageTag team1-docker-dev-us --build-name=$pipeline_name --build-number=$run_number
             - add_run_files /tmp/jfrog/. jfrog
 
-      - name: app-push-build-info
+      - name: push_build_info
         type: PublishBuildInfo
         configuration:
           inputSteps:
-            - name: app-docker-build
+            - name: docker_build
           outputResources:
             - name: javaBackendDockerBuildInfo
 
-      - name: app-promote-build-info
+      - name: promote_build_info
         type: PromoteBuild
         configuration:
           targetRepository: team1-docker-prod-us
@@ -210,7 +210,7 @@ pipelines:
 
   - name: release-pipeline
     steps:
-      - name: create-release-bundle
+      - name: create_release_bundle
         type: CreateReleaseBundle
         configuration:
           releaseBundleName: demo-app
@@ -227,7 +227,7 @@ pipelines:
             - echo $outputReleaseBundleResourceName
             - printenv
 
-      - name: distribute-release-bundle
+      - name: distribute_release_bundle
         type: DistributeReleaseBundle
         configuration:
           dryRun: false
