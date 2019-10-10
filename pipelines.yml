@@ -9,11 +9,15 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: $pipeline_name
+      buildNumber: $run_number
 
   - name: goServicePromotedDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: $pipeline_name
+      buildNumber: $run_number
 
   - name: javaBackendGitRepo
     type: GitRepo
@@ -25,13 +29,15 @@ resources:
     type: BuildInfo
     configuration:
       sourceArtifactory: art
+      buildName: $pipeline_name
+      buildNumber: $run_number
 
   - name: javaBackendPromotedDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
-      buildName: backend_build
-      buildNumber: 1
+      buildName: $pipeline_name
+      buildNumber: $run_number
 
   - name: npmFrontendGitRepo
     type: GitRepo
