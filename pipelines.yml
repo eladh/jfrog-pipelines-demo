@@ -5,14 +5,14 @@ resources:
       path: danielezer/swampup-go-service
       gitProvider: git
 
-  - name: goServiceDockerBuild
+  - name: goServiceDockerBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: svc_build
       buildNumber: 1
 
-  - name: goServicePromotedDockerBuild
+  - name: goServicePromotedDockerBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
@@ -25,14 +25,14 @@ resources:
       path: danielezer/swampup-java-backend-service
       gitProvider: git
 
-  - name: javaBackendDockerBuild
+  - name: javaBackendDockerBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: backend_build
       buildNumber: 1
 
-  - name: javaBackendPromotedDockerBuild
+  - name: javaBackendPromotedDockerBuildInfo
     type: BuildInfo
     configuration:
       sourceArtifactory: art
@@ -45,21 +45,14 @@ resources:
       path: danielezer/swampup-vue-frontend
       gitProvider: git
 
-  - name: releaseBundle_demo
+  - name: appReleaseBundle
     type: ReleaseBundle
     configuration:
       sourceDistribution: dist
       name: demo-app
       version: v2.0.0
 
-  - name: signedBundle_demo
-    type: ReleaseBundle
-    configuration:
-      sourceDistribution: dist
-      name: demo-app
-      version: v2.0.0
-
-  - name: distributionRules_demo
+  - name: appDistributionRuleToAll
     type: DistributionRule
     configuration:
       sourceDistribution: dist
@@ -70,9 +63,9 @@ resources:
         - "*"
 
 pipelines:
-  - name: demo_service_demo
+  - name: go-service-pipeline
     steps:
-      - name: bld_svc_demo
+      - name: go-service-docker-build
         type: DockerBuild
         configuration:
           dockerFileLocation: .
@@ -84,7 +77,7 @@ pipelines:
           integrations:
             - name: art
 
-      - name: push_svc_demo
+      - name: go-service-docker-push
         type: DockerPush
         configuration:
           targetRepository: team1-docker-dev-us
@@ -92,24 +85,24 @@ pipelines:
           integrations:
             - name: art
           inputSteps:
-            - name: bld_svc_demo
+            - name: go-service-docker-build
           outputResources:
-            - name: goServiceDockerBuild
+            - name: goServiceDockerBuildInfo
 
-      - name: promote_svc_build_demo
+      - name: promote-go-service-build
         type: PromoteBuild
         configuration:
           targetRepository: team1-docker-prod-us
           integrations:
             - name: art
           inputResources:
-            - name: goServiceDockerBuild
+            - name: goServiceDockerBuildInfo
           outputResources:
-            - name: goServicePromotedDockerBuild
+            - name: goServicePromotedDockerBuildInfo
 
-  - name: demo_app_pipeline
+  - name: npm-maven-service-pipeline
     steps:
-      - name: bld_backend_demo
+      - name: backend-maven-build
         type: MvnBuild
         configuration:
           runtime:
@@ -131,7 +124,7 @@ pipelines:
             - jfrog rt config show
 
 
-      - name: bld_frontend
+      - name: frontend-npm-build
         type: NpmBuild
         configuration:
           npmArgs: --no-progress --no-audit
@@ -142,11 +135,11 @@ pipelines:
           integrations:
             - name: art
 
-      - name: pack_frontend
+      - name: frontend-npm-pack
         type: Bash
         configuration:
           inputSteps:
-            - name: bld_frontend
+            - name: frontend-npm-build
           integrations:
             - name: art
         execution:
@@ -157,19 +150,20 @@ pipelines:
             - npm run build
             - add_run_files $tempStateLocation/. npmBuildInputGitRepo
 
-      - name: publish_frontend_demo
+      - name: frontend-npm-publish
         type: NpmPublish
         configuration:
           repositoryName: team2-npm-dev-us
+          autoPublishBuildInfo: true
           inputSteps:
-            - name: pack_frontend
+            - name: frontend-npm-pack
           integrations:
             - name: art
         execution:
           onStart:
-            - export inputNpmBuildStepName="bld_frontend"
+            - export inputNpmBuildStepName="frontend-npm-build"
 
-      - name: build_app_demo
+      - name: app-docker-build
         type: Bash
         configuration:
           environmentVariables:
@@ -178,8 +172,8 @@ pipelines:
           inputResources:
             - name: javaBackendGitRepo
           inputSteps:
-            - name: bld_backend_demo
-            - name: publish_frontend_demo
+            - name: backend-maven-build
+            - name: frontend-npm-publish
           integrations:
             - name: art
         execution:
@@ -195,28 +189,28 @@ pipelines:
             - jfrog rt docker-push $dockerImageName:$dockerImageTag team1-docker-dev-us --build-name=$pipeline_name --build-number=$run_number
             - add_run_files /tmp/jfrog/. jfrog
 
-      - name: publish_app_build_demo
+      - name: app-push-build-info
         type: PublishBuildInfo
         configuration:
           inputSteps:
-            - name: build_app_demo
+            - name: app-docker-build
           outputResources:
-            - name: javaBackendDockerBuild
+            - name: javaBackendDockerBuildInfo
 
-      - name: promote_app_build
+      - name: app-promote-build-info
         type: PromoteBuild
         configuration:
           targetRepository: team1-docker-prod-us
           integrations:
             - name: art
           inputResources:
-            - name: javaBackendDockerBuild
+            - name: javaBackendDockerBuildInfo
           outputResources:
-            - name: javaBackendPromotedDockerBuild
+            - name: javaBackendPromotedDockerBuildInfo
 
-  - name: demo_release_pipeline
+  - name: release-pipeline
     steps:
-      - name: bundle
+      - name: create-release-bundle
         type: CreateReleaseBundle
         configuration:
           releaseBundleName: demo-app
@@ -224,21 +218,21 @@ pipelines:
           dryRun: false
           sign: true
           inputResources:
-            - name: goServicePromotedDockerBuild
-            - name: javaBackendPromotedDockerBuild
+            - name: goServicePromotedDockerBuildInfo
+            - name: javaBackendPromotedDockerBuildInfo
           outputResources:
-            - name: releaseBundle_demo
+            - name: appReleaseBundle
         execution:
           onStart:
             - echo $outputReleaseBundleResourceName
             - printenv
 
-      - name: distribute
+      - name: distribute-release-bundle
         type: DistributeReleaseBundle
         configuration:
           dryRun: false
           inputResources:
-            - name: releaseBundle_demo
-            - name: distributionRules_demo
+            - name: appReleaseBundle
+            - name: appDistributionRuleToAll
           integrations:
             - name: art
