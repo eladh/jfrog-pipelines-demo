@@ -1,45 +1,39 @@
 resources:
-  - name: go_gitRepo_demo
+  - name: goServiceGitRepo
     type: GitRepo
     configuration:
       path: danielezer/swampup-go-service
       gitProvider: git
 
-  - name: svc_build_info_demo
+  - name: goServiceDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
-      buildName: svc_build
-      buildNumber: 1
 
-  - name: svc_promoted_build_info_demo
+  - name: goServicePromotedDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
-      buildName: svc_build
-      buildNumber: 1
 
-  - name: backend_gitRepo_demo
+  - name: javaBackendGitRepo
     type: GitRepo
     configuration:
       path: danielezer/swampup-java-backend-service
       gitProvider: git
 
-  - name: app_build_info_demo
+  - name: javaBackendDockerBuild
+    type: BuildInfo
+    configuration:
+      sourceArtifactory: art
+
+  - name: javaBackendPromotedDockerBuild
     type: BuildInfo
     configuration:
       sourceArtifactory: art
       buildName: backend_build
       buildNumber: 1
 
-  - name: app_promoted_build_info_demo
-    type: BuildInfo
-    configuration:
-      sourceArtifactory: art
-      buildName: backend_build
-      buildNumber: 1
-
-  - name: frontend_gitRepo_demo
+  - name: npmFrontendGitRepo
     type: GitRepo
     configuration:
       path: danielezer/swampup-vue-frontend
@@ -80,7 +74,7 @@ pipelines:
           dockerImageName: 35.196.150.45:8081/team1-docker-dev-us/gosvc
           dockerImageTag: $run_number
           inputResources:
-            - name: go_gitRepo_demo
+            - name: goServiceGitRepo
           integrations:
             - name: art
 
@@ -94,7 +88,7 @@ pipelines:
           inputSteps:
             - name: bld_svc_demo
           outputResources:
-            - name: svc_build_info_demo
+            - name: goServiceDockerBuild
 
       - name: promote_svc_build_demo
         type: PromoteBuild
@@ -103,9 +97,9 @@ pipelines:
           integrations:
             - name: art
           inputResources:
-            - name: svc_build_info_demo
+            - name: goServiceDockerBuild
           outputResources:
-            - name: svc_promoted_build_info_demo
+            - name: goServicePromotedDockerBuild
 
   - name: demo_app_pipeline
     steps:
@@ -123,7 +117,7 @@ pipelines:
           configFileLocation: .
           configFileName: mvn-art-config
           inputResources:
-            - name: backend_gitRepo_demo
+            - name: javaBackendGitRepo
           integrations:
             - name: art
         execution:
@@ -138,7 +132,7 @@ pipelines:
           sourceLocation: .
           repositoryName: team2-npm
           inputResources:
-            - name: frontend_gitRepo_demo
+            - name: npmFrontendGitRepo
           integrations:
             - name: art
 
@@ -176,7 +170,7 @@ pipelines:
             dockerImageName: 35.196.150.45:8081/team1-docker-dev-us/app
             dockerImageTag: ${run_number}
           inputResources:
-            - name: backend_gitRepo_demo
+            - name: javaBackendGitRepo
           inputSteps:
             - name: bld_backend_demo
             - name: publish_frontend_demo
@@ -186,7 +180,7 @@ pipelines:
           onStart:
             - rm -rf $run_dir/workspace/jfrog
             - retry_command jfrog rt config --url $int_art_url --user $int_art_user --apikey $int_art_apikey --interactive=false
-            - pushd $res_backend_gitRepo_demo_resourcePath
+            - pushd $res_javaBackendGitRepo_resourcePath
             - echo $int_art_url
             - echo $run_Number
             - add_run_variables buildStepName=${step_name} ${step_name}_buildNumber=${run_number} ${step_name}_buildName=${pipeline_name}
@@ -201,7 +195,7 @@ pipelines:
           inputSteps:
             - name: build_app_demo
           outputResources:
-            - name: app_build_info_demo
+            - name: javaBackendDockerBuild
 
       - name: promote_app_build
         type: PromoteBuild
@@ -210,9 +204,9 @@ pipelines:
           integrations:
             - name: art
           inputResources:
-            - name: app_build_info_demo
+            - name: javaBackendDockerBuild
           outputResources:
-            - name: app_promoted_build_info_demo
+            - name: javaBackendPromotedDockerBuild
 
   - name: demo_release_pipeline
     steps:
@@ -224,8 +218,8 @@ pipelines:
           dryRun: false
           sign: true
           inputResources:
-            - name: svc_promoted_build_info_demo
-            - name: app_promoted_build_info_demo
+            - name: goServicePromotedDockerBuild
+            - name: javaBackendPromotedDockerBuild
           outputResources:
             - name: releaseBundle_demo
 
